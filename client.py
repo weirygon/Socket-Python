@@ -6,16 +6,24 @@ port = 12345
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((host, port))
 
-
-
 while True:
-    string = input("=> ")
-    print(string)
-    s.sendall(str.encode(string))
-    data = s.recv(1024)
+    try:    
+        string = input("=> ")
+        
+        if len(string) == 0:
+            print("IF")
+            s.sendall(str.encode(chr(0)))
+            break
+        else:
+            s.sendall(str.encode(str(string)))
 
-    if str == "end":
+    except KeyboardInterrupt:
+        
         break
 
-print('Mensagem ecoada', data.decode())
+print("AAAAAAAAAAAAAAA")
+print(s.recv(1024))
 
+#print("Soma:", data)
+print("[+] Finish!")
+s.close()
