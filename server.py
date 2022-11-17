@@ -5,10 +5,13 @@ def convertSum(data):
 
     try:
         for i, x in enumerate(num): #Convert for int
-            num[i] = int(x)
+            if x != '':
+                num[i] = int(x)
+            else:
+                num[i] = 0
 
     except ValueError:
-        data = "Only Interge!"
+        data = "Only Interger!"
         return data
 
     return str(sum(num))
@@ -16,43 +19,43 @@ def convertSum(data):
 def main():
     host = 'localhost'
     port = 12345
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind((host, port))
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((host, port))
-
-    while True:
-        try:
+        while True:
             print()
             s.listen()
             print("[*] Wait connection of client...")
             conn, ender = s.accept()
             print("[+] Connect in: ", ender)
 
-            num_sum = []
+            try:
 
-            while True:
-                data = conn.recv(1024)
-                print(data)
-                data = data.decode()
+                while True:
+                    data = conn.recv(1024)
+                    data = data.decode()
 
-                #print(data, type(data), data.isnumeric())
-                if data:
-                    print("IF")
+                    if data != chr(0):
+                        data = convertSum(data)
+                        conn.sendall(str.encode(data))
+                    
+                    else:
+                        print("[-] Connection closed:", ender)
+                        conn.close()
+                        break
+            except ConnectionError:
+                print("[-] Error: Connection Losted: ", ender)
+                conn.close()
 
-                    try:
-                        num_sum.append(int(data))
-                    except ValueError:
-                        pass
-                else:
-                    print("ELSE")
-                    conn.sendall(str.encode("AAA"))
-                    print("Fechando conexão")
-                    conn.close()
-                    break
-                print(num_sum)
-
-        except ConnectionError:
-            print("[-] Connection closed: ", ender)
-
+    except ConnectionError:
+        print("[-] Error: Connection Losted: ", ender)
+    except KeyboardInterrupt:
+        print("[-] Exiting...")
+        s.close()
+    except OSError:
+        print("[-] Error: Address already in use!")
+    
+    s.close()
 
 main()
